@@ -50,9 +50,11 @@ EatingAppleChannel = pygame.mixer.Channel(1)
 #System music:
 GameMusicSound = pygame.mixer.Sound("SNEK_Sounds/GameMusic.wav")
 GameMusicChannel = pygame.mixer.Channel(2)
+#Winner apple sould:
+WinnerAppleSound = pygame.mixer.Sound("SNEK_Sounds/WinningApple.wav")
 
 #Set game music volume lower:
-GameMusicSound.set_volume(0.2)
+GameMusicChannel.set_volume(0.2)
 
 #System functions:
 def terminate():
@@ -191,7 +193,7 @@ def drawStartScreen(Cords_list1,Cords_list2, SnekScore1, SnekScore2,Snek1,Snek2,
         LargeWindow.blit(Snake1Score,S1SRect)
         LargeWindow.blit(Snake2Score,S2SRect)
         LargeWindow.blit(GameScore,GameScoreRect)
-        pygame.display.update()
+        pygame.display.flip()
 
         for event in pygame.event.get(): 
             if event.type == QUIT:
@@ -270,6 +272,8 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
     Color2Direction = True
     Color3Direction = True
 
+    PlayerWon = False
+
     # main game loop
     while True:
         #Event handling loop
@@ -296,6 +300,9 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
                     Snake2Direction = UP
                 elif (event.key == K_s and Snake2Direction != UP):
                     Snake2Direction = DOWN
+                
+                elif (event.key == K_ESCAPE) and (PlayerWon == True):
+                    return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
 
         #Check if Snek 1 hit walls:
         if Snake1Cords[HEAD]['x'] == -1 or Snake1Cords[HEAD]['x'] == CellWidth or Snake1Cords[HEAD]['y'] == -1 or Snake1Cords[HEAD]['y'] == CellHeight:
@@ -326,69 +333,69 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
                 return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
             Placement+=1
 
-        #check if SNEK1 has eaten an apple and make it do stuff if it has:
-        if Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Normal":
-            AppleCords=makeFruits(CellWidth,CellHeight) # set a new apple somewhere
-            EatingAppleChannel.play(EatingAppleSound)
-        elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Speed":
-            TicksPerSec +=1
-            AppleCords=makeFruits(CellWidth,CellHeight)
-            del Snake1Cords[-1]
-            EatingAppleChannel.play(EatingAppleSound)
-        elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Board":
-            GameHeight += CELLSIZE
-            GameWidth += CELLSIZE
-            AppleCords=makeFruits(CellWidth,CellHeight)
-            del Snake1Cords[-1]
-            EatingAppleChannel.play(EatingAppleSound)
-        else:
-            del Snake1Cords[-1] # remove Snek's tail segment
-        
-        
-        #check if SNEK2 has eaten an apple and make it grow if it has: 
-        if Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Normal":
-            AppleCords=makeFruits(CellWidth,CellHeight) # set a new apple somewhere
-            EatingAppleChannel.play(EatingAppleSound)
-        elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Speed":
-            TicksPerSec +=1
-            AppleCords=makeFruits(CellWidth,CellHeight)
-            del Snake2Cords[-1]
-            EatingAppleChannel.play(EatingAppleSound)
-        elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Board":
-            GameHeight += CELLSIZE
-            GameWidth += CELLSIZE
-            AppleCords=makeFruits(CellWidth,CellHeight)
-            del Snake2Cords[-1]
-            EatingAppleChannel.play(EatingAppleSound)
-        else:
-            del Snake2Cords[-1] # remove Snek's tail segment
+        if PlayerWon == False:
+            #check if SNEK1 has eaten an apple and make it do stuff if it has:
+            if Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Normal":
+                AppleCords=makeFruits(CellWidth,CellHeight) # set a new apple somewhere
+                EatingAppleChannel.play(EatingAppleSound)
+            elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Speed":
+                TicksPerSec +=1
+                AppleCords=makeFruits(CellWidth,CellHeight)
+                del Snake1Cords[-1]
+                EatingAppleChannel.play(EatingAppleSound)
+            elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Board":
+                GameHeight += CELLSIZE
+                GameWidth += CELLSIZE
+                AppleCords=makeFruits(CellWidth,CellHeight)
+                del Snake1Cords[-1]
+                EatingAppleChannel.play(EatingAppleSound)
+            elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Master":
+                PlayerWon = True
+                del Snake1Cords[-1]
+            else:
+                del Snake1Cords[-1] # remove Snek's tail segment
+            
+            #check if SNEK2 has eaten an apple and make it grow if it has: 
+            if Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Normal":
+                AppleCords=makeFruits(CellWidth,CellHeight) # set a new apple somewhere
+                EatingAppleChannel.play(EatingAppleSound)
+            elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Speed":
+                TicksPerSec +=1
+                AppleCords=makeFruits(CellWidth,CellHeight)
+                del Snake2Cords[-1]
+                EatingAppleChannel.play(EatingAppleSound)
+            elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Board":
+                GameHeight += CELLSIZE
+                GameWidth += CELLSIZE
+                AppleCords=makeFruits(CellWidth,CellHeight)
+                del Snake2Cords[-1]
+                EatingAppleChannel.play(EatingAppleSound)
+            elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Master":
+                PlayerWon = True
+                del Snake2Cords[-1]
+            else:
+                del Snake2Cords[-1] # remove Snek's tail segment
 
-
-        #Add segments in the direction Snek 1 is moving
-        if Snake1Direction==UP:
-            newHead1 = {'x': Snake1Cords[HEAD]['x'], 'y': Snake1Cords[HEAD]['y'] - 1}
-        elif Snake1Direction==DOWN:
-            newHead1 = {'x': Snake1Cords[HEAD]['x'], 'y': Snake1Cords[HEAD]['y'] + 1}
-        elif Snake1Direction==LEFT:
-            newHead1 = {'x': Snake1Cords[HEAD]['x'] - 1, 'y': Snake1Cords[HEAD]['y']}
-        elif Snake1Direction==RIGHT:
-            newHead1 = {'x': Snake1Cords[HEAD]['x'] + 1, 'y': Snake1Cords[HEAD]['y']}
-        Snake1Cords.insert(HEAD,newHead1)
-        #Add segments in the direction Snek 2 is moving
-        if Snake2Direction==UP:
-            newHead2 = {'x': Snake2Cords[HEAD]['x'], 'y': Snake2Cords[HEAD]['y'] - 1}
-        elif Snake2Direction==DOWN:
-            newHead2 = {'x': Snake2Cords[HEAD]['x'], 'y': Snake2Cords[HEAD]['y'] + 1}
-        elif Snake2Direction==LEFT:
-            newHead2 = {'x': Snake2Cords[HEAD]['x'] - 1, 'y': Snake2Cords[HEAD]['y']}
-        elif Snake2Direction==RIGHT:
-            newHead2 = {'x': Snake2Cords[HEAD]['x'] + 1, 'y': Snake2Cords[HEAD]['y']}
-        Snake2Cords.insert(HEAD,newHead2)
-
-        #Fake Global Variables:
-        CellWidth = int(GameWidth / CELLSIZE)
-        CellHeight = int(GameHeight / CELLSIZE)
-        SmallWindow = pygame.display.set_mode((GameWidth, GameHeight),0, 32)
+            #Add segments in the direction Snek 1 is moving
+            if Snake1Direction==UP:
+                newHead1 = {'x': Snake1Cords[HEAD]['x'], 'y': Snake1Cords[HEAD]['y'] - 1}
+            elif Snake1Direction==DOWN:
+                newHead1 = {'x': Snake1Cords[HEAD]['x'], 'y': Snake1Cords[HEAD]['y'] + 1}
+            elif Snake1Direction==LEFT:
+                newHead1 = {'x': Snake1Cords[HEAD]['x'] - 1, 'y': Snake1Cords[HEAD]['y']}
+            elif Snake1Direction==RIGHT:
+                newHead1 = {'x': Snake1Cords[HEAD]['x'] + 1, 'y': Snake1Cords[HEAD]['y']}
+            Snake1Cords.insert(HEAD,newHead1)
+            #Add segments in the direction Snek 2 is moving
+            if Snake2Direction==UP:
+                newHead2 = {'x': Snake2Cords[HEAD]['x'], 'y': Snake2Cords[HEAD]['y'] - 1}
+            elif Snake2Direction==DOWN:
+                newHead2 = {'x': Snake2Cords[HEAD]['x'], 'y': Snake2Cords[HEAD]['y'] + 1}
+            elif Snake2Direction==LEFT:
+                newHead2 = {'x': Snake2Cords[HEAD]['x'] - 1, 'y': Snake2Cords[HEAD]['y']}
+            elif Snake2Direction==RIGHT:
+                newHead2 = {'x': Snake2Cords[HEAD]['x'] + 1, 'y': Snake2Cords[HEAD]['y']}
+            Snake2Cords.insert(HEAD,newHead2)
 
         Placement = 0
         for color in RAINBOW:
@@ -434,6 +441,11 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
             RAINBOW[Placement] = color
             Placement += 1
 
+        #Fake Global Variables:
+        CellWidth = int(GameWidth / CELLSIZE)
+        CellHeight = int(GameHeight / CELLSIZE)
+        SmallWindow = pygame.display.set_mode((GameWidth, GameHeight),0, 32)
+
         #Draw everything
         SmallWindow.fill(BLACK)
         drawGrid(SmallWindow,GameHeight,GameWidth)
@@ -445,8 +457,12 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
         pygame.display.flip()
 
         #Play the music if not already playing:
-        if GameMusicChannel.get_busy() == False:
-            GameMusicChannel.play(GameMusicSound)
+        if PlayerWon == False:
+            if GameMusicChannel.get_busy() == False:
+                GameMusicChannel.play(GameMusicSound)
+        else:
+            if GameMusicChannel.get_sound() != WinnerAppleSound:
+                GameMusicChannel.play(WinnerAppleSound)
 
         TicksPerSecCLOCK.tick(TicksPerSec)
 
