@@ -17,4 +17,5 @@ Current features:
 
 Coming updates:
   Fix screen getting too large for computer screen
-  Stat Screen button
+  
+There is a known "bug" where after eating enough of the BLUE apples the board size will increases off of the available computer screen
