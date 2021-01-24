@@ -6,9 +6,10 @@ pygame.display.set_caption('Isaacs Very Nice SNEK game')
 
 GameWidth=500
 GameHeight=500
-StartScreenHeight = 625
+StartScreenHeight = 600
 
 FONT = pygame.font.Font('freesansbold.ttf', 18)
+BIGFONT = pygame.font.Font("freesansbold.ttf",26)
 
 #             R    G    B
 GRAY      = (100, 100, 100)
@@ -135,13 +136,8 @@ def drawSpeed(TicksPerSec,windowSurface):
     SpeedRect.center=(int(GameWidth/2),int(GameHeight-10))
     windowSurface.blit(SpeedSurface, SpeedRect)
 
-def drawStartScreen(Cords_list1,Cords_list2, SnekScore1, SnekScore2,Snek1,Snek2,GameScore):
+def drawStartScreen(Cords_list1,Cords_list2,Snek1,Snek2,Snek1GrowthApples,Snek2GrowthApples,Snek1SpeedApples,Snek2SpeedApples,Snek1BoardApples,Snek2BoardApples):
     LargeWindow = pygame.display.set_mode((GameWidth, StartScreenHeight),0, 32)
-
-    LargeWindow.fill(BLACK)
-    drawGrid(LargeWindow,GameHeight,GameWidth)
-    drawSNEKS(Cords_list1,Snek1,LargeWindow)
-    drawSNEKS(Cords_list2,Snek2,LargeWindow)
 
     titleSurf1 = FONT.render('BRO TIME FOR A SNEK GAME', True, WHITE, None)
     EnterMessage = FONT.render('PRESS ENTER TO PLAY',True,RED,None)
@@ -152,10 +148,8 @@ def drawStartScreen(Cords_list1,Cords_list2, SnekScore1, SnekScore2,Snek1,Snek2,
     Snek1Placement = {"x":10, "y":(StartScreenHeight - 10)}
     Snek2Placement = {"x":10, "y":(StartScreenHeight - 30)}
 
-    Snake1Score = FONT.render("Length Reached By Snek 1: " + SnekScore1,True,GREEN,BLACK) 
-    Snake2Score = FONT.render("Length Reached By Snek 2: " + SnekScore2,True,CYAN,BLACK) 
-
-    GameScore = FONT.render("Speed Apples Eaten: " + GameScore,True,YELLOW,BLACK)
+    StatsWords = FONT.render(" STATS",True,BLACK,WHITE)
+    StatsRect = pygame.draw.rect(LargeWindow,WHITE,(10,(StartScreenHeight-70),70,20))
 
     KeyPresses=""
 
@@ -174,25 +168,19 @@ def drawStartScreen(Cords_list1,Cords_list2, SnekScore1, SnekScore2,Snek1,Snek2,
     #Display Snek2 Message
     Snek2KeysRect = Snek2Keys.get_rect()
     Snek2KeysRect.bottomleft = (Snek2Placement["x"],Snek2Placement["y"])
-    #Display Snek1 Score
-    S1SRect = Snake1Score.get_rect()
-    S1SRect.bottomleft = (10, (StartScreenHeight - 100))
-    #Display Snek2 Score
-    S2SRect = Snake2Score.get_rect()
-    S2SRect.bottomleft = (10, (StartScreenHeight - 80))
-    #Display Speed apples eaten
-    GameScoreRect = GameScore.get_rect()
-    GameScoreRect.bottomleft = (10, (StartScreenHeight - 60))
 
     while True:
+        LargeWindow.fill(BLACK)
+        drawGrid(LargeWindow,GameHeight,GameWidth)
+        drawSNEKS(Cords_list1,Snek1,LargeWindow)
+        drawSNEKS(Cords_list2,Snek2,LargeWindow)
+
         LargeWindow.blit(titleSurf1,TitleRect)
         LargeWindow.blit(EnterMessage,EnterRect)
         LargeWindow.blit(QuitMessage,QuitRect)
         LargeWindow.blit(Snek1Keys,Snek1KeysRect)
         LargeWindow.blit(Snek2Keys,Snek2KeysRect)
-        LargeWindow.blit(Snake1Score,S1SRect)
-        LargeWindow.blit(Snake2Score,S2SRect)
-        LargeWindow.blit(GameScore,GameScoreRect)
+        StatButton = LargeWindow.blit(StatsWords,StatsRect)
         pygame.display.flip()
 
         for event in pygame.event.get(): 
@@ -219,6 +207,10 @@ def drawStartScreen(Cords_list1,Cords_list2, SnekScore1, SnekScore2,Snek1,Snek2,
                     return KeyPresses
                 elif event.key == K_ESCAPE:
                     terminate()
+            elif event.type==MOUSEBUTTONUP and event.button==1:
+                MousePosition = pygame.mouse.get_pos()
+                if StatButton.collidepoint(MousePosition):
+                    drawStatsScreen(LargeWindow,Snek1GrowthApples,Snek2GrowthApples,Snek1SpeedApples,Snek2SpeedApples,Snek1BoardApples,Snek2BoardApples)
         
         if GameMusicChannel.get_busy() == False:
             GameMusicChannel.play(GameMusicSound)
@@ -263,6 +255,74 @@ def SnekStartingCords():
 
     return SnekCordinates,FacingDirection
 
+def drawStatsScreen(LargeWindow, Snek1Length, Snek2Length, Snek1Speed, Snek2Speed, Snek1Boards, Snek2Boards):
+    WindowOpener = BIGFONT.render("STATS WINDOW - ESC TO RETURN",True,RED)
+    WindowOpenerRect = WindowOpener.get_rect()
+    WindowOpenerRect.center = ((int(GameWidth/2)),30)
+
+    xSpacing = 10
+    ySpacing = 100
+
+    #Stats for SNEK 1:
+    Snek1StatsWords = BIGFONT.render("STATS FOR SNEK 1:",True,GREEN)
+    Snek1StatsRect = Snek1StatsWords.get_rect()
+    Snek1StatsRect.topleft = (xSpacing,ySpacing)
+
+    ySpacing += 40
+    Snek1RedApplesWords = FONT.render("RED Apples Eaten: " + Snek1Length,True,GREEN)
+    Snek1RedAppleRect = Snek1RedApplesWords.get_rect()
+    Snek1RedAppleRect.topleft = (xSpacing,ySpacing)
+    
+    ySpacing += 20
+    Snek1YellowApplesWords = FONT.render("YELLOW Apples Eaten: " + Snek1Speed,True,GREEN)
+    Snek1YellowAppleRect = Snek1YellowApplesWords.get_rect()
+    Snek1YellowAppleRect.topleft = (xSpacing,ySpacing)
+
+    ySpacing += 20
+    Snek1BlueApplesWords = FONT.render("BLUE Apples Eaten: " + Snek1Boards,True,GREEN)
+    Snek1BlueAppleRect = Snek1BlueApplesWords.get_rect()
+    Snek1BlueAppleRect.topleft = (xSpacing,ySpacing)
+
+    ySpacing += 60
+    Snek2StatsWords = BIGFONT.render("STATS FOR SNEK 2:",True,CYAN)
+    Snek2StatsRect = Snek2StatsWords.get_rect()
+    Snek2StatsRect.topleft = (xSpacing,ySpacing)
+
+    ySpacing += 40
+    Snek2RedApplesWords = FONT.render("RED Apples Eaten: " + Snek1Length,True,CYAN)
+    Snek2RedAppleRect = Snek1RedApplesWords.get_rect()
+    Snek2RedAppleRect.topleft = (xSpacing,ySpacing)
+
+    ySpacing += 20
+    Snek2YellowApplesWords = FONT.render("YELLOW Apples Eaten: " + Snek2Speed,True,CYAN)
+    Snek2YellowAppleRect = Snek2YellowApplesWords.get_rect()
+    Snek2YellowAppleRect.topleft = (xSpacing,ySpacing)
+
+    ySpacing += 20
+    Snek2BlueApplesWords = FONT.render("BLUE Apples Eaten: " + Snek2Boards,True,CYAN)
+    Snek2BlueAppleRect = Snek2BlueApplesWords.get_rect()
+    Snek2BlueAppleRect.topleft = (xSpacing,ySpacing)
+
+    while True:
+        for event in pygame.event.get(): 
+            if event.type == QUIT:
+                terminate()
+            elif event.type == KEYDOWN and (event.key == K_ESCAPE):
+                return
+
+        LargeWindow.fill(BLACK)
+        LargeWindow.blit(WindowOpener,WindowOpenerRect)
+        LargeWindow.blit(Snek1StatsWords,Snek1StatsRect)
+        LargeWindow.blit(Snek2StatsWords,Snek2StatsRect)
+        LargeWindow.blit(Snek1RedApplesWords,Snek1RedAppleRect)
+        LargeWindow.blit(Snek1YellowApplesWords,Snek1YellowAppleRect)
+        LargeWindow.blit(Snek1BlueApplesWords,Snek1BlueAppleRect)
+        LargeWindow.blit(Snek2RedApplesWords,Snek2RedAppleRect)
+        LargeWindow.blit(Snek2YellowApplesWords,Snek2YellowAppleRect)
+        LargeWindow.blit(Snek2BlueApplesWords,Snek2BlueAppleRect)
+
+        pygame.display.flip()
+
 def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,TicksPerSec,GameWidth,GameHeight):
     SmallWindow = pygame.display.set_mode((GameWidth, GameHeight),0, 32)
     CellWidth = int(GameWidth / CELLSIZE)
@@ -273,6 +333,12 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
     Color3Direction = True
 
     PlayerWon = False
+
+    Snek1SpeedApplesEaten = 0
+    Snek1BoardApplesEaten = 0
+
+    Snek2SpeedApplesEaten = 0
+    Snek2BoardApplesEaten = 0
 
     # main game loop
     while True:
@@ -306,49 +372,51 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
 
         #Check if Snek 1 hit walls:
         if Snake1Cords[HEAD]['x'] == -1 or Snake1Cords[HEAD]['x'] == CellWidth or Snake1Cords[HEAD]['y'] == -1 or Snake1Cords[HEAD]['y'] == CellHeight:
-            return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
+            return str(len(Snake1Cords)-3),str(len(Snake2Cords)-3), str(Snek1SpeedApplesEaten), str(Snek2SpeedApplesEaten),str(Snek1BoardApplesEaten),str(Snek2BoardApplesEaten)
         #Check if Snek 2 hit walls
         if Snake2Cords[HEAD]['x'] == -1 or Snake2Cords[HEAD]['x'] == CellWidth or Snake2Cords[HEAD]['y'] == -1 or Snake2Cords[HEAD]['y'] == CellHeight:
-            return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
+            return str(len(Snake1Cords)-3),str(len(Snake2Cords)-3), str(Snek1SpeedApplesEaten), str(Snek2SpeedApplesEaten),str(Snek1BoardApplesEaten),str(Snek2BoardApplesEaten)
 
         #Check if Snek 1 hit themself:
         for SnekBody in Snake1Cords[1:]:
             if SnekBody['x'] == Snake1Cords[HEAD]['x'] and SnekBody['y'] == Snake1Cords[HEAD]['y']:
-                return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
+                return str(len(Snake1Cords)-3),str(len(Snake2Cords)-3), str(Snek1SpeedApplesEaten), str(Snek2SpeedApplesEaten),str(Snek1BoardApplesEaten),str(Snek2BoardApplesEaten)
         #Check if Snek 2 hit themself:
         for SnekBody in Snake2Cords[1:]:
             if SnekBody['x'] == Snake2Cords[HEAD]['x'] and SnekBody['y'] == Snake2Cords[HEAD]['y']:
-                return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
+                return str(len(Snake1Cords)-3),str(len(Snake2Cords)-3), str(Snek1SpeedApplesEaten), str(Snek2SpeedApplesEaten),str(Snek1BoardApplesEaten),str(Snek2BoardApplesEaten)
         
         #Check if Snek 1 hit Snek 2:
-        Placement=0
         for body in Snake2Cords[0:]:
             if Snake1Cords[HEAD]['x']==body['x'] and Snake1Cords[HEAD]['y']==body['y']:
-                return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
-            Placement+=1
+                return str(len(Snake1Cords)-3),str(len(Snake2Cords)-3), str(Snek1SpeedApplesEaten), str(Snek2SpeedApplesEaten),str(Snek1BoardApplesEaten),str(Snek2BoardApplesEaten)
         #Check if Snek 2 hit Snek 1:
-        Placement=0
         for body in Snake1Cords[0:]:
             if Snake2Cords[HEAD]['x']==body['x'] and Snake2Cords[HEAD]['y']==body['y']:
-                return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
-            Placement+=1
+                return str(len(Snake1Cords)-3),str(len(Snake2Cords)-3), str(Snek1SpeedApplesEaten), str(Snek2SpeedApplesEaten),str(Snek1BoardApplesEaten),str(Snek2BoardApplesEaten)
 
+        #If the player has not won...Do everythin:
         if PlayerWon == False:
             #check if SNEK1 has eaten an apple and make it do stuff if it has:
             if Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Normal":
                 AppleCords=makeFruits(CellWidth,CellHeight) # set a new apple somewhere
                 EatingAppleChannel.play(EatingAppleSound)
+
             elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Speed":
                 TicksPerSec +=1
                 AppleCords=makeFruits(CellWidth,CellHeight)
                 del Snake1Cords[-1]
                 EatingAppleChannel.play(EatingAppleSound)
+                Snek1SpeedApplesEaten += 1
+
             elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Board":
                 GameHeight += CELLSIZE
                 GameWidth += CELLSIZE
                 AppleCords=makeFruits(CellWidth,CellHeight)
                 del Snake1Cords[-1]
                 EatingAppleChannel.play(EatingAppleSound)
+                Snek1BoardApplesEaten += 1
+
             elif Snake1Cords[HEAD]['x'] == AppleCords['x'] and Snake1Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Master":
                 PlayerWon = True
                 del Snake1Cords[-1]
@@ -359,17 +427,22 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
             if Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Normal":
                 AppleCords=makeFruits(CellWidth,CellHeight) # set a new apple somewhere
                 EatingAppleChannel.play(EatingAppleSound)
+
             elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Speed":
                 TicksPerSec +=1
                 AppleCords=makeFruits(CellWidth,CellHeight)
                 del Snake2Cords[-1]
                 EatingAppleChannel.play(EatingAppleSound)
+                Snek2SpeedApplesEaten += 1 
+
             elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Board":
                 GameHeight += CELLSIZE
                 GameWidth += CELLSIZE
                 AppleCords=makeFruits(CellWidth,CellHeight)
                 del Snake2Cords[-1]
                 EatingAppleChannel.play(EatingAppleSound)
+                Snek2BoardApplesEaten += 1 
+
             elif Snake2Cords[HEAD]['x'] == AppleCords['x'] and Snake2Cords[HEAD]['y'] == AppleCords['y'] and AppleCords["Type"] == "Master":
                 PlayerWon = True
                 del Snake2Cords[-1]
@@ -470,15 +543,22 @@ Snek1Length = "N/A"
 Snek2Length = "N/A"
 GameScore = "N/A"
 
+Snek1Length = "N/A"
+Snek2Length = "N/A" 
+Snake1Speed = "N/A" 
+Snake2Speed = "N/A" 
+Snake1BoardGrowth = "N/A" 
+Snake2BoardGrowth = "N/A"
+
 while True:
     TicksPerSec = 10
 
     Snake1Cords,Snake1Direction = SnekStartingCords()
     Snake2Cords,Snake2Direction = SnekStartingCords()
 
-    KonamiList=drawStartScreen(Snake1Cords,Snake2Cords,Snek1Length,Snek2Length,"1","2",GameScore)
+    KonamiList=drawStartScreen(Snake1Cords,Snake2Cords,"1","2",Snek1Length, Snek2Length, Snake1Speed, Snake2Speed, Snake1BoardGrowth, Snake2BoardGrowth)
      
     TicksPerSec=KonamiChecker(KonamiList,TicksPerSec)
     AppleCords=makeFruits(CellWidth,CellHeight) 
 
-    Snek1Length, Snek2Length, GameScore = Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,TicksPerSec,GameHeight,GameWidth)
+    Snek1Length, Snek2Length, Snake1Speed, Snake2Speed, Snake1BoardGrowth, Snake2BoardGrowth = Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,TicksPerSec,GameHeight,GameWidth)

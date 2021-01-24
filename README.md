@@ -14,9 +14,6 @@ Current features:
     BLUE - Increases world borders (Has issue of the screen extending off computer screen)
     YELLOW - Increases game speed
     RaInBOw - Winning apple (1/200 spawn chance, has no effect when eaten...working on fixing that. For now, the Sneks ghost through it)
-  
-Coming updates in Snek 1.0.1:
-  RaInBOw apple effect
 
 Coming updates:
   Fix screen getting too large for computer screen
