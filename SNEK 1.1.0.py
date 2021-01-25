@@ -36,7 +36,7 @@ DOWN = 'down'
 LEFT = 'left'
 RIGHT = 'right'
 
-TicksPerSec=10
+TicksPerSec = 10
 TicksPerSecCLOCK = pygame.time.Clock()
 
 HEAD = 0
@@ -130,12 +130,6 @@ def drawLengths(SnekCords,Side,windowSurface):
     
     windowSurface.blit(scoreSurf, scoreRect)
 
-def drawSpeed(TicksPerSec,windowSurface):
-    SpeedSurface=FONT.render("SPEED: "+str(TicksPerSec),True,WHITE)
-    SpeedRect=SpeedSurface.get_rect()
-    SpeedRect.center=(int(GameWidth/2),int(GameHeight-10))
-    windowSurface.blit(SpeedSurface, SpeedRect)
-
 def drawStartScreen(Cords_list1,Cords_list2,Snek1,Snek2,Snek1GrowthApples,Snek2GrowthApples,Snek1SpeedApples,Snek2SpeedApples,Snek1BoardApples,Snek2BoardApples):
     LargeWindow = pygame.display.set_mode((GameWidth, StartScreenHeight),0, 32)
 
@@ -148,8 +142,8 @@ def drawStartScreen(Cords_list1,Cords_list2,Snek1,Snek2,Snek1GrowthApples,Snek2G
     Snek1Placement = {"x":10, "y":(StartScreenHeight - 10)}
     Snek2Placement = {"x":10, "y":(StartScreenHeight - 30)}
 
-    StatsWords = FONT.render(" STATS",True,BLACK,WHITE)
-    StatsRect = pygame.draw.rect(LargeWindow,WHITE,(10,(StartScreenHeight-70),70,20))
+    StatsWords = FONT.render(" STATS ",True,BLACK,WHITE)
+    StatsRect = pygame.draw.rect(LargeWindow,WHITE,(10,(StartScreenHeight-80),90,100))
 
     KeyPresses=""
 
@@ -368,7 +362,7 @@ def Runner(AppleCords,Snake1Cords,Snake1Direction,Snake2Cords,Snake2Direction,Ti
                     Snake2Direction = DOWN
                 
                 elif (event.key == K_ESCAPE) and (PlayerWon == True):
-                    return str(len(Snake1Cords)),str(len(Snake2Cords)), str(TicksPerSec - 10)
+                    return str(len(Snake1Cords)-3),str(len(Snake2Cords)-3), str(Snek1SpeedApplesEaten), str(Snek2SpeedApplesEaten),str(Snek1BoardApplesEaten),str(Snek2BoardApplesEaten)
 
         #Check if Snek 1 hit walls:
         if Snake1Cords[HEAD]['x'] == -1 or Snake1Cords[HEAD]['x'] == CellWidth or Snake1Cords[HEAD]['y'] == -1 or Snake1Cords[HEAD]['y'] == CellHeight:
