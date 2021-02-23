@@ -15,7 +15,4 @@ Current features:
     YELLOW - Increases game speed
     RaInBOw - Winning apple (1/200 spawn chance, has no effect when eaten...working on fixing that. For now, the Sneks ghost through it)
 
-Coming updates in Snek 1.1.1:
-  Fix screen getting too large for computer screen
-  
-There is a known "bug" where after eating enough of the BLUE apples the board size will increases off of the available computer screen
+A `.exe` and folder of sound files can be downloaded and located at: https://github.com/Woldorf/Executable-Games.git
