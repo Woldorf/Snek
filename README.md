@@ -8,14 +8,12 @@ This requires the `pygame` librarie to function.
 Current features:
   Sound effect when eating an apple
   Game music
-  Stats of the last game played on the start screen
+  Stats screen button
+  Control screen button
   Multiple types of apples
     RED - Increases the length of the Snek that ate it
     BLUE - Increases world borders (Has issue of the screen extending off computer screen)
     YELLOW - Increases game speed
     RaInBOw - Winning apple (1/200 spawn chance, has no effect when eaten...working on fixing that. For now, the Sneks ghost through it)
 
-Coming updates in Snek 1.1.1:
-  Fix screen getting too large for computer screen
-  
-There is a known "bug" where after eating enough of the BLUE apples the board size will increases off of the available computer screen
+There is a known error where the screen shifts and gets all weird and off center. I have no idea why it does this and my temporary solution is to close and re-open the game.
