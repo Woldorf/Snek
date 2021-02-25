@@ -16,8 +16,6 @@ Current features:
     YELLOW - Increases game speed
     RaInBOw - Winning apple (1/200 spawn chance, has no effect when eaten...working on fixing that. For now, the Sneks ghost through it)
 
-<<<<<<< HEAD
 There is a known error where the screen shifts and gets all weird and off center. I have no idea why it does this and my temporary solution is to close and re-open the game.
 =======
 A `.exe` and folder of sound files can be downloaded and located at: https://github.com/Woldorf/Executable-Games.git
->>>>>>> 39dbe23bd942c17e62d5dd6dda53acbb8081a32e
