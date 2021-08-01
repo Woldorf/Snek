@@ -1,8 +1,10 @@
 Created by Broken Keyboard Studios, all rights reserved.
 
-This requires the `pygame` librarie to function. 
+This requires the `pygame` librarie to function if you are **not** running the .exe. 
   Install instructions for pygame:
     http://automatetheboringstuff.com/2e/appendixa/
+
+Please see the release for this game to get the .zip file with the .exe of the game.
 
 Current features:
   Sound effect when eating an apple
@@ -19,4 +21,3 @@ Future updates coming:
     Custom images and sprites as well as textures
   Credits Screen
   Highscore tracker
-
