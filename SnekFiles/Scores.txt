@@ -1,0 +1,4 @@
+--Snek1HighScore
+8
+--Snek2HighScore
+7

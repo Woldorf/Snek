@@ -8,8 +8,8 @@ from pygame.locals import *
 pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption('Dual Snakes - BrokenKeyboard Studios')
-GameScreen = pygame.display.set_mode((500,500))
-#pygame.display.toggle_fullscreen()
+GameScreen = pygame.display.set_mode((0,0))
+pygame.display.toggle_fullscreen()
 
 GAMEWIDTH=pygame.display.Info().current_w
 GAMEHEIGHT=pygame.display.Info().current_h
@@ -52,16 +52,34 @@ TicksPerSecCLOCK = pygame.time.Clock()
 
 #Sound Objects:
 #Eating apple sound effect:
-EatingAppleSound = pygame.mixer.Sound("SNEK_Sounds/EatingApple.wav")
+EatingAppleSound = pygame.mixer.Sound("SnekFiles/EatingApple.wav")
 EatingAppleChannel = pygame.mixer.Channel(1)
 #System music:
-GameMusicSound = pygame.mixer.Sound("SNEK_Sounds/GameMusic.wav")
+GameMusicSound = pygame.mixer.Sound("SnekFiles/GameMusic.wav")
 GameMusicChannel = pygame.mixer.Channel(2)
 #Winner apple sould:
-WinnerAppleSound = pygame.mixer.Sound("SNEK_Sounds/WinningApple.wav")
+WinnerAppleSound = pygame.mixer.Sound("SnekFiles/WinningApple.wav")
 #Set game music volume lower:
 GameMusicChannel.set_volume(0.2)
 #EatingAppleChannel.set_volume(0.0)
+
+class Text:
+    def __init__(self,Text,Color,Size, Y = None, X = None,):
+        self.Text = pygame.font.Font("freesansbold.ttf",Size).render(Text,True,Color)
+        self.Obj = self.Text.get_rect()
+
+        if X == None:
+            self.X = int(GAMEWIDTH/2)
+        if Y != None:
+            self.Y = Y
+            self.Obj.center = (self.X,self.Y)
+
+    def UpdateScreen(self,ScrollSpeed = None):
+        if ScrollSpeed != None:
+            self.Y -= ScrollSpeed
+            self.Obj.center = (self.X,self.Y)
+
+        GameScreen.blit(self.Text,self.Obj)
 
 #Snek Class:
 class Snek:
@@ -192,15 +210,17 @@ class Snek:
         {"x":(StartSquareX + 2*DifferenceX), "y":(StartSquareY + 2*DifferenceY)}]
 
 #System functions:
-def terminate():
-    pygame.quit()
-    sys.exit()
-
 def drawGrid():
     for x in range(0, GAMEWIDTH + CELLSIZE, CELLSIZE): # draw vertical lines
         pygame.draw.line(GameScreen, DARKGRAY, (x, 0), (x, GAMEHEIGHT + CELLSIZE))
     for y in range(0, GAMEHEIGHT + CELLSIZE, CELLSIZE): # draw horizontal lines
         pygame.draw.line(GameScreen, DARKGRAY, (0, y), (GAMEWIDTH, y))
+
+def drawPaused():
+    Words = BIGFONT.render("GAME IS PAUSED",True,RED)
+    WordsRect = Words.get_rect()
+    WordsRect.center = (int(GAMEWIDTH/2),int(GAMEHEIGHT/2))
+    GameScreen.blit(Words,WordsRect)
 
 def drawFruits(AppleCords):
     x=AppleCords['x'] * CELLSIZE
@@ -216,18 +236,6 @@ def drawFruits(AppleCords):
             pygame.draw.rect(windowSurface,CYAN,FruitRect)"""
     elif AppleCords["Type"] == "Master":
         pygame.draw.rect(GameScreen,RAINBOW,FruitRect)
-
-def makeFruits():
-    x=random.randint(0, int(GAMEWIDTH / CELLSIZE)-1)
-    y=random.randint(0, int(GAMEHEIGHT / CELLSIZE)-1)
-
-    if random.randint(0,1001) == 4:
-        Type = "Master"
-    else:
-        TypeList=["Normal","Speed","Normal"]
-        Type = random.choice(TypeList)
-
-    return {'x':x,'y':y,'Type':Type}
 
 def drawStartScreen(Snek1,Snek2):
     titleWords = BIGFONT.render('DUAL SNEK', True, WHITE, None)
@@ -295,19 +303,25 @@ def drawStartScreen(Snek1,Snek2):
                 elif ControlsButton.collidepoint(MousePosition):
                     drawControlsScreen()
         
-        if GameMusicChannel.get_busy() == False:
+        if not GameMusicChannel.get_busy():
             GameMusicChannel.play(GameMusicSound)
 
-def KonamiChecker(KeyPresses,TicksPerSec):
-    #Konami Code: wUaLsDdR
-    #Konami Code checker:
-    if KeyPresses == "wUaLsDdR":
-        TicksPerSec=5
-    else:
-        TicksPerSec=10
-    return TicksPerSec
-
 def drawStatsScreen(Snek1,Snek2):
+    MEGAFONT = pygame.font.Font("freesansbold.ttf",36)
+    Snek1HighScore,Snek2HighScore = GetGameFile()
+
+    HighScoreWords = MEGAFONT.render("HIGH SCORE", True, ORANGE)
+    HighScoreWordsRect = HighScoreWords.get_rect()
+    HighScoreWordsRect.center = ((int(GAMEWIDTH/2)),(GAMEHEIGHT - (GAMEHEIGHT/4)))
+
+    Snek1ScoreWords = BIGFONT.render(str("SNEK 1: " + Snek1HighScore),True,ORANGE)
+    Snek1ScoreRect = Snek1ScoreWords.get_rect()
+    Snek1ScoreRect.center = (int(GAMEWIDTH/2),(HighScoreWordsRect.bottom + Snek1ScoreRect.height))
+
+    Snek2ScoreWords = BIGFONT.render(str("SNEK 2: " + Snek2HighScore),True,ORANGE)
+    Snek2ScoreRect = Snek2ScoreWords.get_rect()
+    Snek2ScoreRect.center = (int(GAMEWIDTH/2),(Snek1ScoreRect.bottom + Snek2ScoreRect.height))
+
     WindowOpener = BIGFONT.render("STATS WINDOW - ESC TO RETURN",True,RED)
     WindowOpenerRect = WindowOpener.get_rect()
     WindowOpenerRect.center = ((int(GAMEWIDTH/2)),30)
@@ -352,19 +366,23 @@ def drawStatsScreen(Snek1,Snek2):
             elif event.type == KEYDOWN and (event.key == K_ESCAPE):
                 return
 
-        GameScreen.fill(DARKGRAY)
+        GameScreen.fill(BLACK)
+        drawGrid()
+        Snek1.UpdateScreen()
+        Snek2.UpdateScreen()
         GameScreen.blit(WindowOpener,WindowOpenerRect)
         GameScreen.blit(Snek1StatsWords,Snek1StatsRect)
         GameScreen.blit(Snek2StatsWords,Snek2StatsRect)
         GameScreen.blit(Snek1RedApplesWords,Snek1RedAppleRect)
         GameScreen.blit(Snek1YellowApplesWords,Snek1YellowAppleRect)
-        #GameScreen.blit(Snek1BlueApplesWords,Snek1BlueAppleRect)
         GameScreen.blit(Snek2RedApplesWords,Snek2RedAppleRect)
         GameScreen.blit(Snek2YellowApplesWords,Snek2YellowAppleRect)
-        #GameScreen.blit(Snek2BlueApplesWords,Snek2BlueAppleRect)
+        GameScreen.blit(HighScoreWords,HighScoreWordsRect)
+        GameScreen.blit(Snek1ScoreWords,Snek1ScoreRect)
+        GameScreen.blit(Snek2ScoreWords,Snek2ScoreRect)
 
         pygame.display.flip()
-        if GameMusicChannel.get_busy() == False:
+        if not GameMusicChannel.get_busy():
             GameMusicChannel.play(GameMusicSound)
 
 def drawControlsScreen():
@@ -398,6 +416,8 @@ def drawControlsScreen():
     while True:
         GameScreen.fill(BLACK)
         drawGrid()
+        Snek1.UpdateScreen()
+        Snek2.UpdateScreen()
         GameScreen.blit(WindowOpener,WindowOpenerRect)
         GameScreen.blit(Snek1Keys,Snek1KeysRect)
         GameScreen.blit(Snek2Keys,Snek2KeysRect)
@@ -412,14 +432,111 @@ def drawControlsScreen():
                 if event.key == K_ESCAPE:
                     return
 
-        if GameMusicChannel.get_busy() == False:
+        if not GameMusicChannel.get_busy():
             GameMusicChannel.play(GameMusicSound)
 
-def drawPaused():
-    Words = BIGFONT.render("GAME IS PAUSED",True,RED)
-    WordsRect = Words.get_rect()
-    WordsRect.center = (int(CellWidth/2),int(CellHeight/2))
-    GameScreen.blit(Words,WordsRect)
+def drawCredits(ScrollCounter):
+    ScrollSpeed = 2 * ScrollCounter
+
+    #If there is an easier way of doing this, it will need to be redone
+    #Bigninning of the pain:
+    HeaderSize = 40
+    NameSize = 30
+    HeaderGap = 60
+    NameGap = 40
+    HeaderColor = ORANGE
+    NameColor = PURPLE
+
+    CreditsList = []
+    CreditsList.append(Text("CREDITS",HeaderColor,58,GAMEHEIGHT))
+    HeaderSpace = HeaderGap + CreditsList[-1].Obj.height + CreditsList[-1].Y
+    CreditsList.append(Text("ENGINEERS",HeaderColor,HeaderSize,HeaderSpace))
+    NameSpace = NameGap + CreditsList[-1].Y
+    CreditsList.append(Text("Woldorf",NameColor,NameSize,NameSpace))
+    #CreditsList.append(Text("ARTISTS",ORANGE,HeaderSize,HeaderSpace))
+    #CreditsList.append(Text("Woldorf",,NameSize,NameSpace))
+    HeaderSpace = HeaderGap + CreditsList[-1].Y
+    CreditsList.append(Text("DEVELOPERS",HeaderColor,HeaderSize,HeaderSpace))
+    NameSpace = NameGap + CreditsList[-1].Y
+    CreditsList.append(Text("Woldorf",NameColor,NameSize,NameSpace))
+    HeaderSpace = HeaderGap + CreditsList[-1].Y
+    CreditsList.append(Text("ORIGINAL CONCEPT",HeaderColor,HeaderSize,HeaderSpace))
+    NameSpace = NameGap + CreditsList[-1].Y
+    CreditsList.append(Text("Woldorf",NameColor,NameSize,NameSpace))
+    NameSpace = NameGap + CreditsList[-1].Y
+    CreditsList.append(Text("01c",NameColor,NameSize,NameSpace))
+    HeaderSpace = HeaderGap + CreditsList[-1].Y
+    CreditsList.append(Text("SPECIAL THANKS TO",HeaderColor,HeaderSize,HeaderSpace))
+    NameSpace = NameGap + CreditsList[-1].Y
+    CreditsList.append(Text("Brambrew",NameColor,NameSize,NameSpace))                 
+    NameSpace = NameGap + CreditsList[-1].Y
+    CreditsList.append(Text("KelserVin",NameColor,NameSize,NameSpace))                #WIll need double checked
+    NameSpace = NameGap + CreditsList[-1].Y
+    CreditsList.append(Text("Froststormer",NameColor,NameSize,NameSpace))             #Will need double checked
+    HeaderSpace = HeaderGap + CreditsList[-1].Y
+    CreditsList.append(Text("ESC TO EXIT CREDITS",RED,HeaderSize,HeaderSpace))
+    #CreditsList.append(Text("",ORANGE,HeaderSize,HeaderSpace))
+    #CreditsList.append(Text("",BLUE,NameSize,NameSpace))
+    #NameSpace = NameGap + CreditsList[-1].Y
+    #HeaderSpace = HeaderGap + CreditsList[-1].Y
+
+    for Name in CreditsList:
+        Name.UpdateScreen(ScrollSpeed)
+
+    return CreditsList
+
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+def makeFruits():
+    x=random.randint(0, int(GAMEWIDTH / CELLSIZE)-1)
+    y=random.randint(0, int(GAMEHEIGHT / CELLSIZE)-1)
+
+    if random.randint(0,1000) == 1:
+        Type = "Master"
+    else:
+        TypeList=["Normal","Speed","Normal"]
+        Type = random.choice(TypeList)
+
+    return {'x':x,'y':y,'Type':"Master"}
+
+def KonamiChecker(KeyPresses,TicksPerSec):
+    #Konami Code: wUaLsDdR
+    #Konami Code checker:
+    if KeyPresses == "wUaLsDdR":
+        TicksPerSec=5
+    else:
+        TicksPerSec=10
+    return TicksPerSec
+
+def GetGameFile(Write = False, Snek1Score = None, Snek2Score = None):
+        GameFileRead = open("SnekFiles/Scores.txt","r")
+        GameFileList = GameFileRead.readlines()
+        Placement = 0
+        for line in GameFileList:
+            if line == "--Snek1HighScore\n":
+                Snek1HighScore = GameFileList[Placement + 1].replace("\n","")
+            if line == "--Snek2HighScore\n":
+                Snek2HighScore = GameFileList[Placement + 1].replace("\n","")
+            Placement += 1
+
+        if not Write:
+            GameFileRead.close()
+            return Snek1HighScore,Snek2HighScore
+        else:
+            GameFileRead.close()
+            if Snek1HighScore == "None Set":
+                Snek1HighScore = 0
+                Snek2HighScore = 0
+
+            if Snek1Score >= int(Snek1HighScore) and Snek2Score >= int(Snek2HighScore):
+                GameFile = open("SnekFiles/Scores.txt","w")
+                WriteLines = ["--Snek1HighScore\n",str(Snek1Score)+"\n","--Snek2HighScore\n",str(Snek2Score)+"\n"]
+                GameFile = open("SnekFiles/Scores.txt","w")
+                for Item in WriteLines:
+                    GameFile.write(Item)
+                GameFile.close()
 
 def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
     PlayerWon = False
@@ -427,6 +544,7 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
     Color1Direction = True
     Color2Direction = True
     Color3Direction = True
+    CreditPlacement = 0
 
     while True:
         #Event handling loop
@@ -439,7 +557,7 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
                     Snek1.ChangeDirection(event.key)
                     Snek2.ChangeDirection(event.key)
 
-                if event.key == K_ESCAPE and PlayerWon == True:
+                if event.key == K_ESCAPE:
                     return Snek1,Snek2
                 elif event.key == K_h:
                     Paused = not Paused
@@ -447,9 +565,11 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
         if not PlayerWon:
                 GameOver, AppleCords, TicksPerSec, PlayerWon = Snek1.CollisionDetection(Snek2,AppleCords,TicksPerSec,PlayerWon)
                 if GameOver:
+                    Snek1.CordsList.append("+1")
                     return Snek1, Snek2
                 GameOver, AppleCords, TicksPerSec, PlayerWon = Snek2.CollisionDetection(Snek1,AppleCords,TicksPerSec,PlayerWon)
                 if GameOver:
+                    Snek2.CordsList.append("+1")
                     return Snek1,Snek2
                 if not Paused:
                     Snek1.Move()
@@ -465,7 +585,7 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
                     color = 15
                     Color1Direction = True
                 
-                if Color1Direction == False:
+                if not Color1Direction:
                     color -= 5
                 elif Color1Direction == True:
                     color += 5
@@ -478,7 +598,7 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
                     color = 15
                     Color2Direction = True
                 
-                if Color2Direction == False:
+                if not Color2Direction:
                     color -= 5
                 elif Color2Direction == True:
                     color += 5
@@ -491,7 +611,7 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
                     color = 15
                     Color3Direction = True
                 
-                if Color3Direction == False:
+                if not Color3Direction:
                     color -= 5
                 elif Color3Direction == True:
                     color += 5
@@ -504,17 +624,20 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
         drawGrid()
         Snek1.UpdateScreen()
         Snek2.UpdateScreen()
+        drawFruits(AppleCords)
         Snek1.DrawLable()
         Snek2.DrawLable()
-        drawFruits(AppleCords)
         if Paused:
             drawPaused()
+        if PlayerWon:
+            CreditPlacement += 1
+            drawCredits(CreditPlacement)
 
         pygame.display.flip()
 
         #Play the music if not already playing:
-        if PlayerWon == False:
-            if GameMusicChannel.get_busy() == False:
+        if not PlayerWon:
+            if not GameMusicChannel.get_busy():
                 GameMusicChannel.play(GameMusicSound)
         else:
             if GameMusicChannel.get_sound() != WinnerAppleSound:
@@ -532,7 +655,7 @@ while True:
     Snek2.MakeCordinates()
 
     KonamiList=drawStartScreen(Snek1,Snek2)
-     
     TicksPerSec=KonamiChecker(KonamiList,TicksPerSec)
-
     Snek1, Snek2 = Runner(makeFruits(),Snek1,Snek2,TicksPerSec)
+
+    GetGameFile(True, len(Snek1.CordsList), len(Snek2.CordsList))
