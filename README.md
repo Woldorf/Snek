@@ -19,5 +19,3 @@ Current features:
 Future updates coming:
   Better graphics
     Custom images and sprites as well as textures
-  Credits Screen
-  Highscore tracker
