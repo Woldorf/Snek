@@ -6,7 +6,7 @@ Feel free to edit sound volumes located on lines 64 and 65.
 #Adding more credits
 
 #!/usr/bin/python
-import random,sys,pygame
+import random,sys,pygame,os
 from pygame.locals import *
 pygame.init()
 pygame.mixer.init()
@@ -53,22 +53,9 @@ TicksPerSecCLOCK = pygame.time.Clock()
 #Snek 1 is Green
 #Snek 2 is Blue
 
-#Sound Objects:
-#Eating apple sound effect:
-EatingAppleSound = pygame.mixer.Sound("SnekFiles/EatingApple.wav")
-EatingAppleChannel = pygame.mixer.Channel(1)
-#System music:
-GameMusicSound = pygame.mixer.Sound("SnekFiles/GameMusic.wav")
-GameMusicChannel = pygame.mixer.Channel(2)
-#Winner apple sould:
-WinnerAppleSound = pygame.mixer.Sound("SnekFiles/WinningApple.wav")
-#Set game music volume lower:
-GameMusicChannel.set_volume(0.2)
-EatingAppleChannel.set_volume(0.2)
-
 class Text:
     def __init__(self,Text,Color,Size, Y = None, X = None,):
-        self.Text = pygame.font.Font("freesansbold.ttf",Size).render(Text,True,Color)
+        self.Text = pygame.font.Font(resource_path("SnekFiles/FreeSansBold.ttf"),Size).render(Text,True,Color)
         self.Obj = self.Text.get_rect()
 
         if X == None:
@@ -215,6 +202,11 @@ class Snek:
         {"x":(StartSquareX + 2*DifferenceX), "y":(StartSquareY + 2*DifferenceY)}]
 
 #System functions:
+def resource_path(relative):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative)
+    return os.path.join(relative)
+
 def drawGrid():
     for x in range(0, GAMEWIDTH + CELLSIZE, CELLSIZE): # draw vertical lines
         pygame.draw.line(GameScreen, DARKGRAY, (x, 0), (x, GAMEHEIGHT + CELLSIZE))
@@ -473,7 +465,7 @@ def KonamiChecker(KeyPresses,TicksPerSec):
     return TicksPerSec
 
 def GetGameFile(Write = False, Snek1Score = None, Snek2Score = None):
-        GameFileRead = open("SnekFiles/Scores.txt","r")
+        GameFileRead = open(resource_path("SnekFiles/Scores.txt"),"r")
         GameFileList = GameFileRead.readlines()
         Placement = 0
         for line in GameFileList:
@@ -493,9 +485,8 @@ def GetGameFile(Write = False, Snek1Score = None, Snek2Score = None):
                 Snek2HighScore = 0
 
             if Snek1Score >= int(Snek1HighScore) and Snek2Score >= int(Snek2HighScore):
-                GameFile = open("SnekFiles/Scores.txt","w")
+                GameFile = open(resource_path("SnekFiles/Scores.txt"),"w")
                 WriteLines = ["--Snek1HighScore\n",str(Snek1Score)+"\n","--Snek2HighScore\n",str(Snek2Score)+"\n"]
-                GameFile = open("SnekFiles/Scores.txt","w")
                 for Item in WriteLines:
                     GameFile.write(Item)
                 GameFile.close()
@@ -607,6 +598,19 @@ def Runner(AppleCords,Snek1,Snek2,TicksPerSec):
                 GameMusicChannel.play(WinnerAppleSound)
 
         TicksPerSecCLOCK.tick(TicksPerSec)
+
+#Sound Objects:
+#Eating apple sound effect:
+EatingAppleSound = pygame.mixer.Sound(resource_path("SnekFiles/EatingApple.wav"))
+EatingAppleChannel = pygame.mixer.Channel(1)
+#System music:
+GameMusicSound = pygame.mixer.Sound(resource_path("SnekFiles/GameMusic.wav"))
+GameMusicChannel = pygame.mixer.Channel(2)
+#Winner apple sould:
+WinnerAppleSound = pygame.mixer.Sound(resource_path("SnekFiles/WinningApple.wav"))
+#Set game music volume lower:
+GameMusicChannel.set_volume(0.2)
+EatingAppleChannel.set_volume(0.2)
 
 while True:
     TicksPerSec = 10
