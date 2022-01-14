@@ -1,10 +1,9 @@
 """
-Made and produced by Broken Keyboard Studios, all rights reserved.
+Made and produced by Kurced Studios, all rights reserved.
 Feel free to edit sound volumes located on lines 64 and 65.
 """
 #Working on:
 #Adding more credits
-#
 
 #!/usr/bin/python
 import random,sys,pygame
@@ -12,8 +11,8 @@ from pygame.locals import *
 pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption("Dual Snakes")
-GameScreen = pygame.display.set_mode((0,0))
-pygame.display.toggle_fullscreen()
+flags = pygame.SCALED | pygame.FULLSCREEN
+GameScreen = pygame.display.set_mode((1000,600),flags=flags)
 
 GAMEWIDTH=pygame.display.Info().current_w
 GAMEHEIGHT=pygame.display.Info().current_h
@@ -236,8 +235,6 @@ def drawFruits(AppleCords):
         pygame.draw.rect(GameScreen,RED,FruitRect)
     elif AppleCords["Type"] == "Speed":
         pygame.draw.rect(GameScreen,YELLOW,FruitRect)
-        """elif AppleCords["Type"] == "Board":
-            pygame.draw.rect(windowSurface,CYAN,FruitRect)"""
     elif AppleCords["Type"] == "Master":
         pygame.draw.rect(GameScreen,RAINBOW,FruitRect)
 
@@ -464,7 +461,7 @@ def makeFruits():
         TypeList=["Normal","Speed","Normal"]
         Type = random.choice(TypeList)
 
-    return {'x':x,'y':y,'Type':"Type"}
+    return {'x':x,'y':y,'Type':Type}
 
 def KonamiChecker(KeyPresses,TicksPerSec):
     #Konami Code: wUaLsDdR
