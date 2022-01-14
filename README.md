@@ -1,4 +1,4 @@
-Created by Broken Keyboard Studios, all rights reserved.
+Created by Kurced Studios, all rights reserved.
 
 This requires the `pygame` librarie to function if you are **not** running the .exe. 
   Install instructions for pygame:
@@ -19,3 +19,5 @@ Current features:
 Future updates coming:
   Better graphics
     Custom images and sprites as well as textures
+
+Check out other games made by me as well, all on Github
